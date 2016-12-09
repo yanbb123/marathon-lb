@@ -345,6 +345,15 @@ def _get_health_check_options(template, health_check, health_check_port):
             health_check_port) if health_check_port else ''
     )
 
+def get_ssl_certs():
+    results = []
+    fileDir='/etc/ssl/titans'
+    for root, dirs, files in os.walk(fileDir):
+        for file in files:
+            if os.path.splitext(file)[1] == '.pem':
+                filepath = os.path.join(root, file)
+                results += [filepath]
+    return ",".join(results)
 
 def config(apps, groups, bind_http_https, ssl_certs, templater,
            haproxy_map=False, domain_map_array=[], app_map_array=[],
@@ -354,7 +363,7 @@ def config(apps, groups, bind_http_https, ssl_certs, templater,
     groups = frozenset(groups)
     duplicate_map = {}
     # donot repeat use backend multiple times since map file is same.
-    _ssl_certs = ssl_certs or "/etc/ssl/cert.pem"
+    _ssl_certs = get_ssl_certs() or ssl_certs
     _ssl_certs = _ssl_certs.split(",")
 
     if bind_http_https:
